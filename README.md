@@ -1,6 +1,6 @@
 # LLM Council 2.0
 
-![llmcouncil](header.jpg)
+![llmcouncil](header.png)
 
 Instead of asking a single LLM, assemble your own **LLM Council**: multiple models deliberate together, review each other's responses anonymously, and a Chairman synthesizes the final answer. LLM Council 2.0 adds personas, native provider SDKs, and a modern dark UI.
 
