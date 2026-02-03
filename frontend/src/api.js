@@ -6,6 +6,70 @@ const API_BASE = 'http://localhost:8001';
 
 export const api = {
   /**
+   * Get council configuration.
+   */
+  async getConfig() {
+    const response = await fetch(`${API_BASE}/api/config`);
+    if (!response.ok) {
+      throw new Error('Failed to get config');
+    }
+    return response.json();
+  },
+
+  /**
+   * List all personas.
+   */
+  async listPersonas() {
+    const response = await fetch(`${API_BASE}/api/personas`);
+    if (!response.ok) {
+      throw new Error('Failed to list personas');
+    }
+    return response.json();
+  },
+
+  /**
+   * Create a persona.
+   */
+  async createPersona({ name, prompt, description, model }) {
+    const response = await fetch(`${API_BASE}/api/personas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, prompt, description: description || null, model: model || null }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create persona');
+    }
+    return response.json();
+  },
+
+  /**
+   * Update a persona.
+   */
+  async updatePersona(personaId, { name, prompt, description, model }) {
+    const response = await fetch(`${API_BASE}/api/personas/${personaId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, prompt, description: description ?? null, model }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update persona');
+    }
+    return response.json();
+  },
+
+  /**
+   * Delete a persona.
+   */
+  async deletePersona(personaId) {
+    const response = await fetch(`${API_BASE}/api/personas/${personaId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete persona');
+    }
+  },
+
+  /**
    * List all conversations.
    */
   async listConversations() {
@@ -49,7 +113,14 @@ export const api = {
   /**
    * Send a message in a conversation.
    */
-  async sendMessage(conversationId, content) {
+  async sendMessage(conversationId, content, personaIds = null, subject = null) {
+    const body = { content };
+    if (personaIds && personaIds.length > 0) {
+      body.persona_ids = personaIds;
+    }
+    if (subject && subject.trim()) {
+      body.subject = subject.trim();
+    }
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message`,
       {
@@ -57,7 +128,7 @@ export const api = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify(body),
       }
     );
     if (!response.ok) {
@@ -71,9 +142,17 @@ export const api = {
    * @param {string} conversationId - The conversation ID
    * @param {string} content - The message content
    * @param {function} onEvent - Callback function for each event: (eventType, data) => void
+   * @param {string[]} personaIds - Optional persona IDs (one per council member)
    * @returns {Promise<void>}
    */
-  async sendMessageStream(conversationId, content, onEvent) {
+  async sendMessageStream(conversationId, content, onEvent, personaIds = null, subject = null) {
+    const body = { content };
+    if (personaIds && personaIds.length > 0) {
+      body.persona_ids = personaIds;
+    }
+    if (subject && subject.trim()) {
+      body.subject = subject.trim();
+    }
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message/stream`,
       {
@@ -81,7 +160,7 @@ export const api = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify(body),
       }
     );
 

@@ -1,0 +1,125 @@
+.persona-manager {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px;
+}
+
+.persona-manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.persona-manager-header h3 {
+  font-size: 14px;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.add-persona-btn {
+  padding: 6px 12px;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.add-persona-btn:hover {
+  background: var(--accent-hover);
+}
+
+.persona-manager-error {
+  padding: 8px;
+  background: rgba(224, 108, 117, 0.15);
+  color: var(--danger);
+  font-size: 13px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.persona-manager-loading {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
+.persona-list {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.no-personas {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 12px 0;
+}
+
+.persona-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.persona-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.persona-item-name {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.persona-item-model {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.persona-item-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.persona-edit-btn,
+.persona-delete-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.persona-edit-btn {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.persona-edit-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.persona-delete-btn {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.persona-delete-btn:hover {
+  background: rgba(224, 108, 117, 0.15);
+}

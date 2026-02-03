@@ -10,17 +10,25 @@ LLM Council is a 3-stage deliberation system where multiple LLMs collaboratively
 
 ### Backend Structure (`backend/`)
 
+**`models_fetcher.py`**
+- Fetches available models from provider APIs (OpenAI, Anthropic, Google, xAI, OpenRouter)
+- Uses static fallback only when API fails or key is missing
+- 5-min cache; POST `/api/config/refresh-models` to force refresh
+
 **`config.py`**
-- Contains `COUNCIL_MODELS` (list of OpenRouter model identifiers)
+- Contains `COUNCIL_MODELS` (list of model identifiers)
 - Contains `CHAIRMAN_MODEL` (model that synthesizes final answer)
 - Uses environment variable `OPENROUTER_API_KEY` from `.env`
 - Backend runs on **port 8001** (NOT 8000 - user had another app on 8000)
 
-**`openrouter.py`**
-- `query_model()`: Single async model query
-- `query_models_parallel()`: Parallel queries using `asyncio.gather()`
-- Returns dict with 'content' and optional 'reasoning_details'
-- Graceful degradation: returns None on failure, continues with successful responses
+**`providers/`** - Native SDKs with OpenRouter fallback
+- `router.py`: Dispatches to native SDK (OpenAI, Anthropic, Google, xAI) or OpenRouter
+- Provider mapping: `openai/` → OpenAI SDK, `anthropic/` → Anthropic, `google/` → google-genai, `x-ai/` → OpenAI client + x.ai base_url
+- Env vars: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY`, `OPENROUTER_API_KEY`
+- Falls back to OpenRouter when native SDK key is missing
+
+**`openrouter.py`** (deprecated)
+- Replaced by `providers/` - kept for reference
 
 **`council.py`** - The Core Logic
 - `stage1_collect_responses()`: Parallel queries to all council models
@@ -34,6 +42,11 @@ LLM Council is a 3-stage deliberation system where multiple LLMs collaboratively
 - `parse_ranking_from_text()`: Extracts "FINAL RANKING:" section, handles both numbered lists and plain format
 - `calculate_aggregate_rankings()`: Computes average rank position across all peer evaluations
 
+**`persona_storage.py`**
+- JSON-based persona storage in `data/personas.json`
+- Persona: `{id, name, prompt, model?, created_at}`
+- CRUD: list, get, create, update, delete
+
 **`storage.py`**
 - JSON-based conversation storage in `data/conversations/`
 - Each conversation: `{id, created_at, messages[]}`
@@ -42,7 +55,9 @@ LLM Council is a 3-stage deliberation system where multiple LLMs collaboratively
 
 **`main.py`**
 - FastAPI app with CORS enabled for localhost:5173 and localhost:3000
-- POST `/api/conversations/{id}/message` returns metadata in addition to stages
+- GET `/api/config` - council_models, chairman_model
+- Persona CRUD: GET/POST `/api/personas`, PUT/DELETE `/api/personas/{id}`
+- POST `/api/conversations/{id}/message` accepts optional `persona_ids` (one per council member)
 - Metadata includes: label_to_model mapping and aggregate_rankings
 
 ### Frontend Structure (`frontend/src/`)
@@ -53,9 +68,14 @@ LLM Council is a 3-stage deliberation system where multiple LLMs collaboratively
 - Important: metadata is stored in the UI state for display but not persisted to backend JSON
 
 **`components/ChatInterface.jsx`**
+- Persona selector: one dropdown per council member (Model: [Persona])
 - Multiline textarea (3 rows, resizable)
 - Enter to send, Shift+Enter for new line
 - User messages wrapped in markdown-content class for padding
+
+**`components/PersonaManager.jsx`** / **`PersonaForm.jsx`**
+- Manage personas in sidebar (expand "Personas" section)
+- Create, edit, delete personas (name, prompt, optional model)
 
 **`components/Stage1.jsx`**
 - Tab view of individual model responses
@@ -124,6 +144,11 @@ All ReactMarkdown components must be wrapped in `<div className="markdown-conten
 
 ### Model Configuration
 Models are hardcoded in `backend/config.py`. Chairman can be same or different from council members. The current default is Gemini as chairman per user preference.
+
+### Personas
+- Each council member can be assigned a persona (system prompt) via the chat selector
+- Personas stored in `data/personas.json`
+- When `persona_ids` provided in message request, each model gets its persona's prompt prepended as system message
 
 ## Common Gotchas
 

@@ -9,10 +9,14 @@ function App() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [config, setConfig] = useState(null);
+  const [personas, setPersonas] = useState([]);
 
-  // Load conversations on mount
+  // Load config, conversations, and personas on mount
   useEffect(() => {
     loadConversations();
+    api.getConfig().then(setConfig).catch(console.error);
+    api.listPersonas().then(setPersonas).catch(console.error);
   }, []);
 
   // Load conversation details when selected
@@ -57,7 +61,7 @@ function App() {
     setCurrentConversationId(id);
   };
 
-  const handleSendMessage = async (content) => {
+  const handleSendMessage = async (content, personaIds = null, subject = null) => {
     if (!currentConversationId) return;
 
     setIsLoading(true);
@@ -169,7 +173,7 @@ function App() {
           default:
             console.log('Unknown event type:', eventType);
         }
-      });
+      }, personaIds, subject);
     } catch (error) {
       console.error('Failed to send message:', error);
       // Remove optimistic messages on error
@@ -188,11 +192,15 @@ function App() {
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
+        personas={personas}
+        onPersonasChange={setPersonas}
+        providersModels={config?.providers_models ?? {}}
       />
       <ChatInterface
         conversation={currentConversation}
         onSendMessage={handleSendMessage}
         isLoading={isLoading}
+        personas={personas}
       />
     </div>
   );
