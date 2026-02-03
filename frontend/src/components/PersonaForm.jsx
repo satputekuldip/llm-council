@@ -21,6 +21,7 @@ export default function PersonaForm({
 }) {
   const [name, setName] = useState(persona?.name ?? '');
   const [prompt, setPrompt] = useState(persona?.prompt ?? '');
+  const [description, setDescription] = useState(persona?.description ?? '');
   const [provider, setProvider] = useState('');
   const [model, setModel] = useState('');
 
@@ -45,9 +46,11 @@ export default function PersonaForm({
     if (persona) {
       setName(persona.name);
       setPrompt(persona.prompt);
+      setDescription(persona.description ?? '');
     } else {
       setName('');
       setPrompt('');
+      setDescription('');
     }
   }, [persona]);
 
@@ -63,7 +66,7 @@ export default function PersonaForm({
     if (!fullModel) {
       return;
     }
-    onSubmit({ name, prompt, model: fullModel });
+    onSubmit({ name, prompt, description: description.trim() || null, model: fullModel });
   };
 
   const canSubmit = name.trim() && prompt.trim() && provider && model;
@@ -80,6 +83,17 @@ export default function PersonaForm({
           placeholder="e.g. Skeptical Scientist"
           required
         />
+      </div>
+      <div className="form-group">
+        <label htmlFor="persona-description">Short description (for chairman)</label>
+        <input
+          id="persona-description"
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="e.g. Pressure-tests startup ideas with ruthless VC skepticism"
+        />
+        <small className="form-hint">Helps the chairman understand this persona&apos;s perspective when synthesizing.</small>
       </div>
       <div className="form-group">
         <label htmlFor="persona-prompt">System Prompt</label>

@@ -30,11 +30,11 @@ export const api = {
   /**
    * Create a persona.
    */
-  async createPersona({ name, prompt, model }) {
+  async createPersona({ name, prompt, description, model }) {
     const response = await fetch(`${API_BASE}/api/personas`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, prompt, model: model || null }),
+      body: JSON.stringify({ name, prompt, description: description || null, model: model || null }),
     });
     if (!response.ok) {
       throw new Error('Failed to create persona');
@@ -45,11 +45,11 @@ export const api = {
   /**
    * Update a persona.
    */
-  async updatePersona(personaId, { name, prompt, model }) {
+  async updatePersona(personaId, { name, prompt, description, model }) {
     const response = await fetch(`${API_BASE}/api/personas/${personaId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, prompt, model }),
+      body: JSON.stringify({ name, prompt, description: description ?? null, model }),
     });
     if (!response.ok) {
       throw new Error('Failed to update persona');
@@ -113,10 +113,13 @@ export const api = {
   /**
    * Send a message in a conversation.
    */
-  async sendMessage(conversationId, content, personaIds = null) {
+  async sendMessage(conversationId, content, personaIds = null, subject = null) {
     const body = { content };
     if (personaIds && personaIds.length > 0) {
       body.persona_ids = personaIds;
+    }
+    if (subject && subject.trim()) {
+      body.subject = subject.trim();
     }
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message`,
@@ -142,10 +145,13 @@ export const api = {
    * @param {string[]} personaIds - Optional persona IDs (one per council member)
    * @returns {Promise<void>}
    */
-  async sendMessageStream(conversationId, content, onEvent, personaIds = null) {
+  async sendMessageStream(conversationId, content, onEvent, personaIds = null, subject = null) {
     const body = { content };
     if (personaIds && personaIds.length > 0) {
       body.persona_ids = personaIds;
+    }
+    if (subject && subject.trim()) {
+      body.subject = subject.trim();
     }
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message/stream`,

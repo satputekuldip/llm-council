@@ -61,7 +61,7 @@ function App() {
     setCurrentConversationId(id);
   };
 
-  const handleSendMessage = async (content, personaIds = null) => {
+  const handleSendMessage = async (content, personaIds = null, subject = null) => {
     if (!currentConversationId) return;
 
     setIsLoading(true);
@@ -173,7 +173,7 @@ function App() {
           default:
             console.log('Unknown event type:', eventType);
         }
-      }, personaIds);
+      }, personaIds, subject);
     } catch (error) {
       console.error('Failed to send message:', error);
       // Remove optimistic messages on error

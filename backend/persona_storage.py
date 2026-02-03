@@ -59,7 +59,12 @@ def get_persona(persona_id: str) -> Optional[Dict[str, Any]]:
     return None
 
 
-def create_persona(name: str, prompt: str, model: Optional[str] = None) -> Dict[str, Any]:
+def create_persona(
+    name: str,
+    prompt: str,
+    model: Optional[str] = None,
+    description: Optional[str] = None,
+) -> Dict[str, Any]:
     """
     Create a new persona.
 
@@ -67,6 +72,7 @@ def create_persona(name: str, prompt: str, model: Optional[str] = None) -> Dict[
         name: Display name
         prompt: System prompt for the persona
         model: Optional model identifier for display
+        description: Optional short description for chairman context
 
     Returns:
         Created persona dict
@@ -79,6 +85,7 @@ def create_persona(name: str, prompt: str, model: Optional[str] = None) -> Dict[
         "name": name,
         "prompt": prompt,
         "model": model,
+        "description": (description or "").strip() or None,
         "created_at": datetime.utcnow().isoformat(),
     }
 
@@ -94,6 +101,7 @@ def update_persona(
     name: Optional[str] = None,
     prompt: Optional[str] = None,
     model: Optional[str] = None,
+    description: Optional[str] = None,
 ) -> Optional[Dict[str, Any]]:
     """
     Update an existing persona.
@@ -103,6 +111,7 @@ def update_persona(
         name: New name (optional)
         prompt: New prompt (optional)
         model: New model (optional)
+        description: New short description for chairman (optional)
 
     Returns:
         Updated persona dict or None if not found
@@ -118,6 +127,8 @@ def update_persona(
                 personas[i]["prompt"] = prompt
             if model is not None:
                 personas[i]["model"] = model
+            if description is not None:
+                personas[i]["description"] = (description or "").strip() or None
             data["personas"] = personas
             _save_personas_data(data)
             return personas[i]

@@ -152,10 +152,35 @@ Now provide your evaluation and ranking:"""
     return stage2_results, label_to_model
 
 
+def _build_persona_context(
+    stage1_results: List[Dict[str, Any]],
+    personas: Optional[List[Dict[str, Any]]],
+) -> str:
+    """Build short persona descriptions for chairman context."""
+    if not personas or len(personas) != len(stage1_results):
+        return ""
+
+    lines = []
+    for i, (result, persona) in enumerate(zip(stage1_results, personas)):
+        model = result.get("model", "Unknown")
+        name = persona.get("name", "Unknown")
+        # Prefer explicit description; else use first line / 150 chars of prompt
+        desc = persona.get("description") or ""
+        if not desc:
+            prompt = persona.get("prompt", "")
+            first_line = prompt.split("\n")[0].strip() if prompt else ""
+            desc = (first_line[:150] + "...") if len(first_line) > 150 else first_line
+        lines.append(f"- {model} (persona: {name}): {desc}")
+
+    return "\n".join(lines)
+
+
 async def stage3_synthesize_final(
     user_query: str,
     stage1_results: List[Dict[str, Any]],
-    stage2_results: List[Dict[str, Any]]
+    stage2_results: List[Dict[str, Any]],
+    personas: Optional[List[Dict[str, Any]]] = None,
+    subject: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Stage 3: Chairman synthesizes final response.
@@ -164,6 +189,8 @@ async def stage3_synthesize_final(
         user_query: The original user query
         stage1_results: Individual model responses from Stage 1
         stage2_results: Rankings from Stage 2
+        personas: Optional list of persona dicts (for context)
+        subject: Optional discussion subject/topic
 
     Returns:
         Dict with 'model' and 'response' keys
@@ -179,11 +206,27 @@ async def stage3_synthesize_final(
         for result in stage2_results
     ])
 
+    persona_context = _build_persona_context(stage1_results, personas)
+    subject_block = ""
+    if subject and subject.strip():
+        subject_block = f"""
+DISCUSSION SUBJECT: {subject.strip()}
+(This is what this conversation is about. Use it to frame your synthesis.)
+"""
+
     chairman_prompt = f"""You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses.
+{subject_block}
+ORIGINAL QUESTION: {user_query}
+"""
 
-Original Question: {user_query}
+    if persona_context:
+        chairman_prompt += f"""
+COUNCIL MEMBER PERSONAS (each model responded with this perspective; use this to understand their viewpoints):
+{persona_context}
 
-STAGE 1 - Individual Responses:
+"""
+
+    chairman_prompt += f"""STAGE 1 - Individual Responses:
 {stage1_text}
 
 STAGE 2 - Peer Rankings:
@@ -191,6 +234,7 @@ STAGE 2 - Peer Rankings:
 
 Your task as Chairman is to synthesize all of this information into a single, comprehensive, accurate answer to the user's original question. Consider:
 - The individual responses and their insights
+- The perspectives each persona brought to their response
 - The peer rankings and what they reveal about response quality
 - Any patterns of agreement or disagreement
 
@@ -337,6 +381,7 @@ async def run_full_council(
     user_query: str,
     models: List[str],
     personas: Optional[List[Dict[str, Any]]] = None,
+    subject: Optional[str] = None,
 ) -> Tuple[List, List, Dict, Dict]:
     """
     Run the complete 3-stage council process.
@@ -345,6 +390,7 @@ async def run_full_council(
         user_query: The user's question
         models: List of model identifiers (council members)
         personas: Optional list of persona dicts (one per model)
+        subject: Optional discussion subject/topic for chairman context
 
     Returns:
         Tuple of (stage1_results, stage2_results, stage3_result, metadata)
@@ -377,7 +423,9 @@ async def run_full_council(
     stage3_result = await stage3_synthesize_final(
         user_query,
         stage1_results,
-        stage2_results
+        stage2_results,
+        personas=personas,
+        subject=subject,
     )
 
     # Prepare metadata

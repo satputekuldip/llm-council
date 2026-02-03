@@ -74,6 +74,7 @@ class SendMessageRequest(BaseModel):
     """Request to send a message in a conversation."""
     content: str
     persona_ids: List[str] | None = None  # One per council member, in order
+    subject: str | None = None  # Optional: what this discussion is about (for chairman context)
 
 
 class CreatePersonaRequest(BaseModel):
@@ -81,6 +82,7 @@ class CreatePersonaRequest(BaseModel):
     name: str
     prompt: str
     model: str | None = None
+    description: str | None = None  # Short summary for chairman context
 
 
 class UpdatePersonaRequest(BaseModel):
@@ -88,6 +90,7 @@ class UpdatePersonaRequest(BaseModel):
     name: str | None = None
     prompt: str | None = None
     model: str | None = None
+    description: str | None = None
 
 
 class ConversationMetadata(BaseModel):
@@ -149,6 +152,7 @@ async def create_persona(request: CreatePersonaRequest):
         name=request.name,
         prompt=request.prompt,
         model=request.model,
+        description=request.description,
     )
 
 
@@ -160,6 +164,7 @@ async def update_persona(persona_id: str, request: UpdatePersonaRequest):
         name=request.name,
         prompt=request.prompt,
         model=request.model,
+        description=request.description,
     )
     if result is None:
         raise HTTPException(status_code=404, detail="Persona not found")
@@ -227,7 +232,7 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
 
     # Run the 3-stage council process
     stage1_results, stage2_results, stage3_result, metadata = await run_full_council(
-        request.content, models, personas
+        request.content, models, personas, subject=request.subject
     )
 
     # Add assistant message with all stages
@@ -294,7 +299,13 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
 
             # Stage 3: Synthesize final answer
             yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
-            stage3_result = await stage3_synthesize_final(request.content, stage1_results, stage2_results)
+            stage3_result = await stage3_synthesize_final(
+                request.content,
+                stage1_results,
+                stage2_results,
+                personas=personas,
+                subject=request.subject,
+            )
             yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
 
             # Wait for title generation if it was started

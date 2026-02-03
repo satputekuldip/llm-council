@@ -24,34 +24,53 @@
 
 .persona-form select {
   padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
-  background: #fff;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
 }
 
+.persona-form select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
 .persona-form label {
   font-size: 13px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-secondary);
 }
 
 .persona-form input,
 .persona-form textarea {
   padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.persona-form input::placeholder,
+.persona-form textarea::placeholder {
+  color: var(--text-muted);
 }
 
 .persona-form textarea {
   resize: vertical;
   min-height: 100px;
+}
+
+.persona-form .form-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 .persona-form .form-actions {
@@ -63,9 +82,9 @@
 
 .persona-form .btn-primary {
   padding: 10px 20px;
-  background: #4a90e2;
+  background: var(--accent);
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #fff;
   font-size: 14px;
   cursor: pointer;
@@ -73,19 +92,19 @@
 }
 
 .persona-form .btn-primary:hover {
-  background: #357abd;
+  background: var(--accent-hover);
 }
 
 .persona-form .btn-secondary {
   padding: 10px 20px;
-  background: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  color: #333;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
   font-size: 14px;
   cursor: pointer;
 }
 
 .persona-form .btn-secondary:hover {
-  background: #e5e5e5;
+  background: var(--bg-elevated);
 }
