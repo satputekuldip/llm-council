@@ -9,8 +9,10 @@ export default function ChatInterface({
   conversation,
   onSendMessage,
   isLoading,
+  personas = [],
 }) {
   const [input, setInput] = useState('');
+  const [selectedPersonaIds, setSelectedPersonaIds] = useState([]);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -21,16 +23,32 @@ export default function ChatInterface({
     scrollToBottom();
   }, [conversation]);
 
+  const handleAddPersona = () => {
+    setSelectedPersonaIds((prev) => [...prev, '']);
+  };
+
+  const handleRemovePersona = (index) => {
+    setSelectedPersonaIds((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handlePersonaChange = (index, personaId) => {
+    setSelectedPersonaIds((prev) => {
+      const next = [...prev];
+      next[index] = personaId;
+      return next;
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (input.trim() && !isLoading) {
-      onSendMessage(input);
+      const personaIds = selectedPersonaIds.filter((id) => id && id.trim());
+      onSendMessage(input, personaIds.length > 0 ? personaIds : null);
       setInput('');
     }
   };
 
   const handleKeyDown = (e) => {
-    // Submit on Enter (without Shift)
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
@@ -48,13 +66,17 @@ export default function ChatInterface({
     );
   }
 
+  const validPersonaIds = selectedPersonaIds.filter((id) => id && id.trim());
+  const canSend = input.trim() && !isLoading;
+  const useDefaultCouncil = canSend && validPersonaIds.length === 0;
+
   return (
     <div className="chat-interface">
       <div className="messages-container">
         {conversation.messages.length === 0 ? (
           <div className="empty-state">
             <h2>Start a conversation</h2>
-            <p>Ask a question to consult the LLM Council</p>
+            <p>Add personas to the council and ask your question</p>
           </div>
         ) : (
           conversation.messages.map((msg, index) => (
@@ -72,7 +94,6 @@ export default function ChatInterface({
                 <div className="assistant-message">
                   <div className="message-label">LLM Council</div>
 
-                  {/* Stage 1 */}
                   {msg.loading?.stage1 && (
                     <div className="stage-loading">
                       <div className="spinner"></div>
@@ -81,7 +102,6 @@ export default function ChatInterface({
                   )}
                   {msg.stage1 && <Stage1 responses={msg.stage1} />}
 
-                  {/* Stage 2 */}
                   {msg.loading?.stage2 && (
                     <div className="stage-loading">
                       <div className="spinner"></div>
@@ -96,7 +116,6 @@ export default function ChatInterface({
                     />
                   )}
 
-                  {/* Stage 3 */}
                   {msg.loading?.stage3 && (
                     <div className="stage-loading">
                       <div className="spinner"></div>
@@ -120,25 +139,83 @@ export default function ChatInterface({
         <div ref={messagesEndRef} />
       </div>
 
-      {conversation.messages.length === 0 && (
-        <form className="input-form" onSubmit={handleSubmit}>
-          <textarea
-            className="message-input"
-            placeholder="Ask your question... (Shift+Enter for new line, Enter to send)"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isLoading}
-            rows={3}
-          />
-          <button
-            type="submit"
-            className="send-button"
-            disabled={!input.trim() || isLoading}
-          >
-            Send
-          </button>
-        </form>
+      {conversation && (
+        <div className="input-area">
+          <div className="persona-selector-dynamic">
+            <div className="persona-selector-header">
+              <svg className="persona-selector-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              <span className="persona-selector-label">Council members</span>
+            </div>
+            <div className="persona-slots">
+              {selectedPersonaIds.map((personaId, i) => (
+                <div key={i} className="persona-slot-dynamic">
+                  <select
+                    value={personaId}
+                    onChange={(e) => handlePersonaChange(i, e.target.value)}
+                    className="persona-select"
+                  >
+                    <option value="">Select persona</option>
+                    {personas.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.model?.split('/').pop() || ''})
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="persona-remove-btn"
+                    onClick={() => handleRemovePersona(i)}
+                    title="Remove from council"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="add-persona-slot-btn"
+                onClick={handleAddPersona}
+              >
+                <svg className="add-persona-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Add member
+              </button>
+            </div>
+            {useDefaultCouncil && (
+              <div className="persona-note">
+                No personas selected – using default council
+              </div>
+            )}
+          </div>
+          <form className="input-form" onSubmit={handleSubmit}>
+            <textarea
+              className="message-input"
+              placeholder="Ask your question... (Shift+Enter for new line, Enter to send)"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isLoading}
+              rows={3}
+            />
+            <button
+              type="submit"
+              className="send-button"
+              disabled={!input.trim() || isLoading}
+            >
+              Send
+            </button>
+          </form>
+        </div>
       )}
     </div>
   );

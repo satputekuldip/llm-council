@@ -100,13 +100,129 @@
   }
 }
 
+.input-area {
+  border-top: 1px solid #e8e8e8;
+  background: #f8fafc;
+  padding: 20px 24px 24px;
+}
+
+.persona-selector-dynamic {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.persona-selector-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.persona-selector-icon {
+  width: 18px;
+  height: 18px;
+  color: #4a90e2;
+  flex-shrink: 0;
+}
+
+.persona-selector-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.persona-selector-dynamic .persona-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.persona-slot-dynamic {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 4px 4px 4px 10px;
+}
+
+.persona-slot-dynamic .persona-select {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  background: transparent;
+  min-width: 140px;
+  color: #374151;
+}
+
+.persona-slot-dynamic .persona-select:focus {
+  outline: none;
+}
+
+.persona-remove-btn {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.persona-remove-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.add-persona-slot-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px dashed #94a3b8;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.add-persona-slot-btn:hover {
+  border-color: #4a90e2;
+  color: #4a90e2;
+  background: #eff6ff;
+}
+
+.add-persona-icon {
+  flex-shrink: 0;
+}
+
+.persona-note {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #e5e7eb;
+}
+
 .input-form {
   display: flex;
   align-items: flex-end;
   gap: 12px;
-  padding: 24px;
-  border-top: 1px solid #e0e0e0;
-  background: #fafafa;
 }
 
 .message-input {

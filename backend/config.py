@@ -24,3 +24,9 @@ OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # Data directory for conversation storage
 DATA_DIR = "data/conversations"
+
+# Personas storage
+PERSONAS_FILE = "data/personas.json"
+
+# Models are fetched dynamically from provider APIs (see models_fetcher.py).
+# Static fallback used only when API fails or key is missing.

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import PersonaManager from './PersonaManager';
 import './Sidebar.css';
 
 export default function Sidebar({
@@ -6,6 +6,9 @@ export default function Sidebar({
   currentConversationId,
   onSelectConversation,
   onNewConversation,
+  personas,
+  onPersonasChange,
+  providersModels = {},
 }) {
   return (
     <div className="sidebar">
@@ -14,6 +17,13 @@ export default function Sidebar({
         <button className="new-conversation-btn" onClick={onNewConversation}>
           + New Conversation
         </button>
+      </div>
+
+      <div className="sidebar-personas-section">
+        <PersonaManager
+          onPersonasChange={onPersonasChange}
+          providersModels={providersModels}
+        />
       </div>
 
       <div className="conversation-list">

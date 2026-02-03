@@ -1,0 +1,123 @@
+.persona-manager {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px;
+}
+
+.persona-manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.persona-manager-header h3 {
+  font-size: 14px;
+  margin: 0;
+  color: #333;
+}
+
+.add-persona-btn {
+  padding: 6px 12px;
+  background: #4a90e2;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.add-persona-btn:hover {
+  background: #357abd;
+}
+
+.persona-manager-error {
+  padding: 8px;
+  background: #fee;
+  color: #c00;
+  font-size: 13px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.persona-manager-loading {
+  font-size: 13px;
+  color: #999;
+  padding: 8px 0;
+}
+
+.persona-list {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.no-personas {
+  font-size: 13px;
+  color: #999;
+  padding: 12px 0;
+}
+
+.persona-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+}
+
+.persona-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.persona-item-name {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.persona-item-model {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.persona-item-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.persona-edit-btn,
+.persona-delete-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.persona-edit-btn {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.persona-edit-btn:hover {
+  background: #e5e5e5;
+}
+
+.persona-delete-btn {
+  background: #fff;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+}
+
+.persona-delete-btn:hover {
+  background: #fee;
+}
